@@ -52,17 +52,22 @@ exports.handler = async (event) => {
       }
     }
     const data = await recentResponse.json();
-    const previewUrl = await getPreviewUrl(item.track.id);
-    const tracks = data.items.map((item) => ({
-      name: item.track.name,
-      artist: item.track.artists.map((a) => a.name).join(", "),
-      album: item.track.album.name,
-      albumArt: item.track.album.images[0]?.url,
-      playedAt: item.played_at,
-      previewUrl: previewUrl,
-      spotifyUrl: item.track.external_urls.spotify,
-      entireData: item,
-    }));
+
+    const tracks = await Promise.all(
+      data.items.map(async (item) => {
+        const previewUrl = await getPreviewUrl(item.track.id);
+        return {
+          name: item.track.name,
+          artist: item.track.artists.map((a) => a.name).join(", "),
+          album: item.track.album.name,
+          albumArt: item.track.album.images[0]?.url,
+          playedAt: item.played_at,
+          spotifyUrl: item.track.external_urls.spotify,
+          previewUrl,
+          item,
+        };
+      }),
+    );
 
     return {
       statusCode: 200,
