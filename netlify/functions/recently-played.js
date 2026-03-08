@@ -45,8 +45,16 @@ exports.handler = async (event) => {
           `https://open.spotify.com/embed/track/${trackId}`,
         );
         const html = await res.text();
-        const match = html.match(/"preview_url":"(https:[^"]+)"/);
-        return match ? match[1].replace(/\\u0026/g, "&") : null;
+
+        const match = html.match(
+          /<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/,
+        );
+        if (!match) return null;
+
+        const data = JSON.parse(match[1]);
+        return (
+          data?.props?.pageProps?.state?.data?.entity?.audioPreview?.url ?? null
+        );
       } catch {
         return null;
       }
