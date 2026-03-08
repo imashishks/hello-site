@@ -1,0 +1,7 @@
+[build]
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/spotify/recently-played"
+  to = "/.netlify/functions/recently-played"
+  status = 200
