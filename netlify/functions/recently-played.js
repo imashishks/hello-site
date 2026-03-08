@@ -39,16 +39,29 @@ exports.handler = async (event) => {
       { headers: { Authorization: `Bearer ${access_token}` } },
     );
 
+    async function getPreviewUrl(trackId) {
+      try {
+        const res = await fetch(
+          `https://open.spotify.com/embed/track/${trackId}`,
+        );
+        const html = await res.text();
+        const match = html.match(/"preview_url":"(https:[^"]+)"/);
+        return match ? match[1].replace(/\\u0026/g, "&") : null;
+      } catch {
+        return null;
+      }
+    }
     const data = await recentResponse.json();
-    console.log("Data", data.items);
+    const previewUrl = await getPreviewUrl(item.track.id);
     const tracks = data.items.map((item) => ({
       name: item.track.name,
       artist: item.track.artists.map((a) => a.name).join(", "),
       album: item.track.album.name,
       albumArt: item.track.album.images[0]?.url,
       playedAt: item.played_at,
-      previewUrl: item.track.preview_url,
+      previewUrl: previewUrl,
       spotifyUrl: item.track.external_urls.spotify,
+      entireData: item,
     }));
 
     return {
