@@ -72,7 +72,7 @@ exports.handler = async (event) => {
           playedAt: item.played_at,
           spotifyUrl: item.track.external_urls.spotify,
           previewUrl,
-          item,
+          id: item.track.id,
         };
       }),
     );
